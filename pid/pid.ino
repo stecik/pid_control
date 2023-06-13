@@ -8,10 +8,10 @@ int cidp1 = A0;
 int cidp2 = A1;
 
 #define mp1 8
-// pwm
+// pwm pin
 #define mp2 6
 #define ml1 7
-// pwm
+// pwm pin
 #define ml2 5
 
 int pTrig = 2;
@@ -148,6 +148,53 @@ int normalizace(int cidlo, int c_min, int c_max) {
   return c_norma;
 }
 
+void Step(bool dir = true, int del = 2, int steps = 2048) {
+  int step_number = 1;
+  if (dir == false) {
+    step_number = 4;
+  }
+
+  for (int i = 0; i < steps; i++) {
+    if (step_number == 1) {
+      digitalWrite(STEPPER_PIN_1, HIGH);
+      digitalWrite(STEPPER_PIN_2, LOW);
+      digitalWrite(STEPPER_PIN_3, LOW);
+      digitalWrite(STEPPER_PIN_4, LOW);
+    }
+    if (step_number == 2) {
+      digitalWrite(STEPPER_PIN_1, LOW);
+      digitalWrite(STEPPER_PIN_2, HIGH);
+      digitalWrite(STEPPER_PIN_3, LOW);
+      digitalWrite(STEPPER_PIN_4, LOW);
+    }
+    if (step_number == 3) {
+      digitalWrite(STEPPER_PIN_1, LOW);
+      digitalWrite(STEPPER_PIN_2, LOW);
+      digitalWrite(STEPPER_PIN_3, HIGH);
+      digitalWrite(STEPPER_PIN_4, LOW);
+    }
+    if (step_number == 4) {
+      digitalWrite(STEPPER_PIN_1, LOW);
+      digitalWrite(STEPPER_PIN_2, LOW);
+      digitalWrite(STEPPER_PIN_3, LOW);
+      digitalWrite(STEPPER_PIN_4, HIGH);
+    }
+
+    if (dir == true) {
+      step_number++;
+      if (step_number > 4) {
+        step_number = 0;
+      }
+    } else {
+      step_number--;
+      if (step_number < 0) {
+        step_number = 4;
+      }
+    }
+    delay(del);
+  }
+}
+
 // ovládání motorů pro pid
 void motory(int smer, int vychozi_rychlost, int max_rychlost) {
   int ml = vychozi_rychlost - smer;
@@ -218,6 +265,7 @@ void loop() {
     motory(0, 0, 0);
     // otoč ultrazvuk
     myservo.write(90);
+    // Step(true, 2, 650);
     // otoč se doleva
     digitalWrite(mp1, LOW);
     analogWrite(mp2, 255);
@@ -243,5 +291,6 @@ void loop() {
     delay(300);
     motory(0, 0, 0);
     myservo.write(180);
+    // Step(false, 2, 650);
   }
 }
